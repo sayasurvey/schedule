@@ -27,6 +27,9 @@ class _WeekScheduleViewState extends State<WeekScheduleView> {
   // スケジュールデータを管理するMap
   final Map<DateTime, Map<String, String>> _schedules = {};
 
+  // 曜日の日本語表記
+  final List<String> _weekdays = ['月', '火', '水', '木', '金', '土', '日'];
+
   @override
   void initState() {
     super.initState();
@@ -236,18 +239,13 @@ class _WeekScheduleViewState extends State<WeekScheduleView> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
-                          DateFormat('E').format(date),
+                          '${date.month}/${date.day}(${_weekdays[date.weekday - 1]})',
                           style: TextStyle(
                             fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
                             color: isSelected ? Colors.blue : Colors.black,
+                            fontSize: 12,
                           ),
-                        ),
-                        Text(
-                          DateFormat('d').format(date),
-                          style: TextStyle(
-                            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                            color: isSelected ? Colors.blue : Colors.black,
-                          ),
+                          textAlign: TextAlign.center,
                         ),
                       ],
                     ),
