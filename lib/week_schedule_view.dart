@@ -11,10 +11,18 @@ class WeekScheduleView extends StatefulWidget {
 class _WeekScheduleViewState extends State<WeekScheduleView> {
   late DateTime _focusedDay;
   late DateTime _selectedDay;
-  final List<String> _timeSlots = List.generate(
-    24,
-    (index) => '${index.toString().padLeft(2, '0')}:00',
-  );
+  
+  // 客先名のリスト
+  final List<String> _customers = [
+    'Amazon',
+    '楽天',
+    'ZOZO',
+    'メルカリ',
+    'suzuri',
+    'BASE',
+    'Qoo10',
+    'アットコスメ'
+  ];
 
   // スケジュールデータを管理するMap
   final Map<DateTime, Map<String, String>> _schedules = {};
@@ -26,13 +34,26 @@ class _WeekScheduleViewState extends State<WeekScheduleView> {
     _selectedDay = DateTime.now();
   }
 
+  // 月の日数を取得
+  int _getDaysInMonth(DateTime date) {
+    return DateTime(date.year, date.month + 1, 0).day;
+  }
+
+  // 月の日付リストを取得
+  List<DateTime> _getDaysInMonthList(DateTime date) {
+    final daysInMonth = _getDaysInMonth(date);
+    return List.generate(daysInMonth, (index) {
+      return DateTime(date.year, date.month, index + 1);
+    });
+  }
+
   // スケジュールを追加するメソッド
-  void _addSchedule(DateTime date, String time, String title) {
+  void _addSchedule(DateTime date, String customer, String title) {
     setState(() {
       if (!_schedules.containsKey(date)) {
         _schedules[date] = {};
       }
-      _schedules[date]![time] = title;
+      _schedules[date]![customer] = title;
     });
   }
 
@@ -40,11 +61,29 @@ class _WeekScheduleViewState extends State<WeekScheduleView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('週間スケジュール'),
+        title: Text('${_focusedDay.year}年${_focusedDay.month}月のスケジュール'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.chevron_left),
+            onPressed: () {
+              setState(() {
+                _focusedDay = DateTime(_focusedDay.year, _focusedDay.month - 1, 1);
+              });
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.chevron_right),
+            onPressed: () {
+              setState(() {
+                _focusedDay = DateTime(_focusedDay.year, _focusedDay.month + 1, 1);
+              });
+            },
+          ),
+        ],
       ),
       body: Column(
         children: [
-          _buildWeekHeader(),
+          _buildCustomerHeader(),
           Expanded(
             child: _buildScheduleGrid(),
           ),
@@ -62,7 +101,7 @@ class _WeekScheduleViewState extends State<WeekScheduleView> {
   // スケジュール追加ダイアログを表示
   void _showAddScheduleDialog() {
     final TextEditingController titleController = TextEditingController();
-    String selectedTime = _timeSlots[0];
+    String selectedCustomer = _customers[0];
 
     showDialog(
       context: context,
@@ -80,16 +119,16 @@ class _WeekScheduleViewState extends State<WeekScheduleView> {
               ),
               const SizedBox(height: 16),
               DropdownButton<String>(
-                value: selectedTime,
-                items: _timeSlots.map((time) {
+                value: selectedCustomer,
+                items: _customers.map((customer) {
                   return DropdownMenuItem(
-                    value: time,
-                    child: Text(time),
+                    value: customer,
+                    child: Text(customer),
                   );
                 }).toList(),
                 onChanged: (value) {
                   if (value != null) {
-                    selectedTime = value;
+                    selectedCustomer = value;
                   }
                 },
               ),
@@ -105,7 +144,7 @@ class _WeekScheduleViewState extends State<WeekScheduleView> {
             TextButton(
               onPressed: () {
                 if (titleController.text.isNotEmpty) {
-                  _addSchedule(_selectedDay, selectedTime, titleController.text);
+                  _addSchedule(_selectedDay, selectedCustomer, titleController.text);
                   Navigator.pop(context);
                 }
               },
@@ -117,12 +156,7 @@ class _WeekScheduleViewState extends State<WeekScheduleView> {
     );
   }
 
-  Widget _buildWeekHeader() {
-    final days = List.generate(7, (index) {
-      final date = _focusedDay.subtract(Duration(days: _focusedDay.weekday - 1 - index));
-      return date;
-    });
-
+  Widget _buildCustomerHeader() {
     return Container(
       height: 60,
       decoration: BoxDecoration(
@@ -142,40 +176,19 @@ class _WeekScheduleViewState extends State<WeekScheduleView> {
               ),
             ),
           ),
-          ...days.map((date) {
-            final isSelected = DateUtils.isSameDay(date, _selectedDay);
+          ..._customers.map((customer) {
             return Expanded(
-              child: GestureDetector(
-                onTap: () {
-                  setState(() {
-                    _selectedDay = date;
-                  });
-                },
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: isSelected ? Colors.blue.withOpacity(0.1) : null,
-                    border: Border(
-                      right: BorderSide(color: Colors.grey.shade300),
-                    ),
+              child: Container(
+                decoration: BoxDecoration(
+                  border: Border(
+                    right: BorderSide(color: Colors.grey.shade300),
                   ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        DateFormat('E').format(date),
-                        style: TextStyle(
-                          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                          color: isSelected ? Colors.blue : Colors.black,
-                        ),
-                      ),
-                      Text(
-                        DateFormat('d').format(date),
-                        style: TextStyle(
-                          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                          color: isSelected ? Colors.blue : Colors.black,
-                        ),
-                      ),
-                    ],
+                ),
+                child: Center(
+                  child: Text(
+                    customer,
+                    style: const TextStyle(fontSize: 12),
+                    textAlign: TextAlign.center,
                   ),
                 ),
               ),
@@ -187,14 +200,14 @@ class _WeekScheduleViewState extends State<WeekScheduleView> {
   }
 
   Widget _buildScheduleGrid() {
-    final days = List.generate(7, (index) {
-      return _focusedDay.subtract(Duration(days: _focusedDay.weekday - 1 - index));
-    });
+    final days = _getDaysInMonthList(_focusedDay);
 
     return ListView.builder(
-      itemCount: _timeSlots.length,
-      itemBuilder: (context, timeIndex) {
-        final time = _timeSlots[timeIndex];
+      itemCount: days.length,
+      itemBuilder: (context, dayIndex) {
+        final date = days[dayIndex];
+        final isSelected = DateUtils.isSameDay(date, _selectedDay);
+        
         return Container(
           height: 60,
           decoration: BoxDecoration(
@@ -206,28 +219,49 @@ class _WeekScheduleViewState extends State<WeekScheduleView> {
             children: [
               SizedBox(
                 width: 60,
-                child: Container(
-                  decoration: BoxDecoration(
-                    border: Border(
-                      right: BorderSide(color: Colors.grey.shade300),
+                child: GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      _selectedDay = date;
+                    });
+                  },
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: isSelected ? Colors.blue.withOpacity(0.1) : null,
+                      border: Border(
+                        right: BorderSide(color: Colors.grey.shade300),
+                      ),
                     ),
-                  ),
-                  child: Center(
-                    child: Text(
-                      time,
-                      style: const TextStyle(fontSize: 12),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          DateFormat('E').format(date),
+                          style: TextStyle(
+                            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                            color: isSelected ? Colors.blue : Colors.black,
+                          ),
+                        ),
+                        Text(
+                          DateFormat('d').format(date),
+                          style: TextStyle(
+                            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                            color: isSelected ? Colors.blue : Colors.black,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
               ),
-              ...days.map((date) {
-                final schedule = _schedules[date]?[time];
+              ..._customers.map((customer) {
+                final schedule = _schedules[date]?[customer];
                 return Expanded(
                   child: GestureDetector(
                     onTap: () {
                       if (schedule != null) {
                         // 既存のスケジュールを編集
-                        _showEditScheduleDialog(date, time, schedule);
+                        _showEditScheduleDialog(date, customer, schedule);
                       } else {
                         // 新しいスケジュールを追加
                         _showAddScheduleDialog();
@@ -266,7 +300,7 @@ class _WeekScheduleViewState extends State<WeekScheduleView> {
   }
 
   // スケジュール編集ダイアログを表示
-  void _showEditScheduleDialog(DateTime date, String time, String currentTitle) {
+  void _showEditScheduleDialog(DateTime date, String customer, String currentTitle) {
     final TextEditingController titleController = TextEditingController(text: currentTitle);
 
     showDialog(
@@ -295,7 +329,7 @@ class _WeekScheduleViewState extends State<WeekScheduleView> {
             TextButton(
               onPressed: () {
                 if (titleController.text.isNotEmpty) {
-                  _addSchedule(date, time, titleController.text);
+                  _addSchedule(date, customer, titleController.text);
                   Navigator.pop(context);
                 }
               },
@@ -304,7 +338,7 @@ class _WeekScheduleViewState extends State<WeekScheduleView> {
             TextButton(
               onPressed: () {
                 setState(() {
-                  _schedules[date]?.remove(time);
+                  _schedules[date]?.remove(customer);
                 });
                 Navigator.pop(context);
               },
