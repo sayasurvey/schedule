@@ -128,6 +128,7 @@ class _WeekScheduleViewState extends State<WeekScheduleView> {
                         initialDate: selectedDate,
                         firstDate: DateTime(2020),
                         lastDate: DateTime(2030),
+                        locale: const Locale('ja', 'JP'),
                       );
                       if (picked != null) {
                         setDialogState(() {
@@ -202,7 +203,7 @@ class _WeekScheduleViewState extends State<WeekScheduleView> {
       child: Row(
         children: [
           SizedBox(
-            width: 60,
+            width: 80,
             child: Container(
               decoration: BoxDecoration(
                 border: Border(
@@ -253,7 +254,7 @@ class _WeekScheduleViewState extends State<WeekScheduleView> {
           child: Row(
             children: [
               SizedBox(
-                width: 60,
+                width: 80,
                 child: GestureDetector(
                   onTap: () {
                     setState(() {
@@ -271,10 +272,19 @@ class _WeekScheduleViewState extends State<WeekScheduleView> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
-                          '${date.month}/${date.day}(${_weekdays[date.weekday - 1]})',
+                          '${date.month}/${date.day}',
                           style: TextStyle(
                             fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
                             color: isSelected ? Colors.blue : Colors.black,
+                            fontSize: 14,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        Text(
+                          '(${_weekdays[date.weekday - 1]})',
+                          style: TextStyle(
+                            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                            color: isSelected ? Colors.blue : Colors.grey[600],
                             fontSize: 12,
                           ),
                           textAlign: TextAlign.center,
@@ -356,6 +366,7 @@ class _WeekScheduleViewState extends State<WeekScheduleView> {
                         initialDate: selectedDate,
                         firstDate: DateTime(2020),
                         lastDate: DateTime(2030),
+                        locale: const Locale('ja', 'JP'),
                       );
                       if (picked != null) {
                         setDialogState(() {
