@@ -105,55 +105,87 @@ class _WeekScheduleViewState extends State<WeekScheduleView> {
   void _showAddScheduleDialog() {
     final TextEditingController titleController = TextEditingController();
     String selectedCustomer = _customers[0];
+    DateTime selectedDate = _selectedDay;
 
     showDialog(
       context: context,
       builder: (context) {
-        return AlertDialog(
-          title: const Text('スケジュールを追加'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: titleController,
-                decoration: const InputDecoration(
-                  labelText: 'タイトル',
+        return StatefulBuilder(
+          builder: (context, setDialogState) {
+            return AlertDialog(
+              title: const Text('スケジュールを追加'),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // 日付選択
+                  ListTile(
+                    title: const Text('日付'),
+                    subtitle: Text('${selectedDate.year}年${selectedDate.month}月${selectedDate.day}日'),
+                    trailing: const Icon(Icons.calendar_today),
+                    onTap: () async {
+                      final DateTime? picked = await showDatePicker(
+                        context: context,
+                        initialDate: selectedDate,
+                        firstDate: DateTime(2020),
+                        lastDate: DateTime(2030),
+                      );
+                      if (picked != null) {
+                        setDialogState(() {
+                          selectedDate = picked;
+                        });
+                      }
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  // タイトル入力
+                  TextField(
+                    controller: titleController,
+                    decoration: const InputDecoration(
+                      labelText: 'タイトル',
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  // 客先選択
+                  DropdownButtonFormField<String>(
+                    value: selectedCustomer,
+                    decoration: const InputDecoration(
+                      labelText: '客先',
+                    ),
+                    items: _customers.map((customer) {
+                      return DropdownMenuItem(
+                        value: customer,
+                        child: Text(customer),
+                      );
+                    }).toList(),
+                    onChanged: (value) {
+                      if (value != null) {
+                        setDialogState(() {
+                          selectedCustomer = value;
+                        });
+                      }
+                    },
+                  ),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  child: const Text('キャンセル'),
                 ),
-              ),
-              const SizedBox(height: 16),
-              DropdownButton<String>(
-                value: selectedCustomer,
-                items: _customers.map((customer) {
-                  return DropdownMenuItem(
-                    value: customer,
-                    child: Text(customer),
-                  );
-                }).toList(),
-                onChanged: (value) {
-                  if (value != null) {
-                    selectedCustomer = value;
-                  }
-                },
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              child: const Text('キャンセル'),
-            ),
-            TextButton(
-              onPressed: () {
-                if (titleController.text.isNotEmpty) {
-                  _addSchedule(_selectedDay, selectedCustomer, titleController.text);
-                  Navigator.pop(context);
-                }
-              },
-              child: const Text('追加'),
-            ),
-          ],
+                TextButton(
+                  onPressed: () {
+                    if (titleController.text.isNotEmpty) {
+                      _addSchedule(selectedDate, selectedCustomer, titleController.text);
+                      Navigator.pop(context);
+                    }
+                  },
+                  child: const Text('追加'),
+                ),
+              ],
+            );
+          },
         );
       },
     );
@@ -300,52 +332,103 @@ class _WeekScheduleViewState extends State<WeekScheduleView> {
   // スケジュール編集ダイアログを表示
   void _showEditScheduleDialog(DateTime date, String customer, String currentTitle) {
     final TextEditingController titleController = TextEditingController(text: currentTitle);
+    DateTime selectedDate = date;
+    String selectedCustomer = customer;
 
     showDialog(
       context: context,
       builder: (context) {
-        return AlertDialog(
-          title: const Text('スケジュールを編集'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: titleController,
-                decoration: const InputDecoration(
-                  labelText: 'タイトル',
+        return StatefulBuilder(
+          builder: (context, setDialogState) {
+            return AlertDialog(
+              title: const Text('スケジュールを編集'),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // 日付選択
+                  ListTile(
+                    title: const Text('日付'),
+                    subtitle: Text('${selectedDate.year}年${selectedDate.month}月${selectedDate.day}日'),
+                    trailing: const Icon(Icons.calendar_today),
+                    onTap: () async {
+                      final DateTime? picked = await showDatePicker(
+                        context: context,
+                        initialDate: selectedDate,
+                        firstDate: DateTime(2020),
+                        lastDate: DateTime(2030),
+                      );
+                      if (picked != null) {
+                        setDialogState(() {
+                          selectedDate = picked;
+                        });
+                      }
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  // タイトル入力
+                  TextField(
+                    controller: titleController,
+                    decoration: const InputDecoration(
+                      labelText: 'タイトル',
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  // 客先選択
+                  DropdownButtonFormField<String>(
+                    value: selectedCustomer,
+                    decoration: const InputDecoration(
+                      labelText: '客先',
+                    ),
+                    items: _customers.map((customer) {
+                      return DropdownMenuItem(
+                        value: customer,
+                        child: Text(customer),
+                      );
+                    }).toList(),
+                    onChanged: (value) {
+                      if (value != null) {
+                        setDialogState(() {
+                          selectedCustomer = value;
+                        });
+                      }
+                    },
+                  ),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  child: const Text('キャンセル'),
                 ),
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              child: const Text('キャンセル'),
-            ),
-            TextButton(
-              onPressed: () {
-                if (titleController.text.isNotEmpty) {
-                  _addSchedule(date, customer, titleController.text);
-                  Navigator.pop(context);
-                }
-              },
-              child: const Text('保存'),
-            ),
-            TextButton(
-              onPressed: () {
-                setState(() {
-                  _schedules[date]?.remove(customer);
-                });
-                Navigator.pop(context);
-              },
-              style: TextButton.styleFrom(
-                foregroundColor: Colors.red,
-              ),
-              child: const Text('削除'),
-            ),
-          ],
+                TextButton(
+                  onPressed: () {
+                    if (titleController.text.isNotEmpty) {
+                      // 元のスケジュールを削除
+                      _schedules[date]?.remove(customer);
+                      // 新しい日付と客先でスケジュールを追加
+                      _addSchedule(selectedDate, selectedCustomer, titleController.text);
+                      Navigator.pop(context);
+                    }
+                  },
+                  child: const Text('保存'),
+                ),
+                TextButton(
+                  onPressed: () {
+                    setState(() {
+                      _schedules[date]?.remove(customer);
+                    });
+                    Navigator.pop(context);
+                  },
+                  style: TextButton.styleFrom(
+                    foregroundColor: Colors.red,
+                  ),
+                  child: const Text('削除'),
+                ),
+              ],
+            );
+          },
         );
       },
     );
