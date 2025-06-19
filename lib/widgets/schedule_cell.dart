@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import '../week_schedule_view.dart';
 
 class ScheduleCell extends StatelessWidget {
-  final String? schedule;
+  final ScheduleItem? schedule;
   final VoidCallback onTap;
 
   const ScheduleCell({
@@ -26,13 +27,19 @@ class ScheduleCell extends StatelessWidget {
                   height: double.infinity,
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
-                    color: Colors.blue.withValues(alpha: 0.1),
+                    color: schedule!.isFirst 
+                        ? Colors.blue.withValues(alpha: 0.2)
+                        : Colors.grey.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(4),
                   ),
                   child: Center(
                     child: Text(
-                      schedule!,
-                      style: const TextStyle(fontSize: 12),
+                      schedule!.title,
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: schedule!.isFirst ? Colors.blue[800] : Colors.grey[600],
+                        fontWeight: schedule!.isFirst ? FontWeight.bold : FontWeight.normal,
+                      ),
                       overflow: TextOverflow.ellipsis,
                       textAlign: TextAlign.center,
                     ),

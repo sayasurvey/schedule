@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 import 'schedule_cell.dart';
+import '../week_schedule_view.dart';
 
 class ScheduleGrid extends StatelessWidget {
   final List<DateTime> days;
   final List<String> customers;
-  final Map<DateTime, Map<String, String>> schedules;
+  final Map<DateTime, Map<String, ScheduleItem>> schedules;
   final DateTime selectedDay;
   final List<String> weekdays;
   final Function(DateTime) onDateTap;
-  final Function(DateTime, String, String?) onScheduleTap;
+  final Function(DateTime, String, ScheduleItem?) onScheduleTap;
 
   const ScheduleGrid({
     super.key,

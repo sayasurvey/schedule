@@ -3,6 +3,13 @@ import 'widgets/customer_header.dart';
 import 'widgets/schedule_grid.dart';
 import 'widgets/schedule_dialog.dart';
 
+class ScheduleItem {
+  final String title;
+  final bool isFirst;
+
+  ScheduleItem({required this.title, required this.isFirst});
+}
+
 class WeekScheduleView extends StatefulWidget {
   const WeekScheduleView({super.key});
 
@@ -25,7 +32,7 @@ class _WeekScheduleViewState extends State<WeekScheduleView> {
     'アットコスメ'
   ];
 
-  final Map<DateTime, Map<String, String>> _schedules = {};
+  final Map<DateTime, Map<String, ScheduleItem>> _schedules = {};
   final List<String> _weekdays = ['月', '火', '水', '木', '金', '土', '日'];
 
   @override
@@ -46,12 +53,16 @@ class _WeekScheduleViewState extends State<WeekScheduleView> {
     });
   }
 
-  void _addSchedule(DateTime date, String customer, String title) {
+  void _addMultipleSchedules(List<DateTime> dates, String customer, String title) {
     setState(() {
-      if (!_schedules.containsKey(date)) {
-        _schedules[date] = {};
+      for (int i = 0; i < dates.length; i++) {
+        final date = dates[i];
+        if (!_schedules.containsKey(date)) {
+          _schedules[date] = {};
+        }
+        final isFirst = i == 0;
+        _schedules[date]![customer] = ScheduleItem(title: title, isFirst: isFirst);
       }
-      _schedules[date]![customer] = title;
     });
   }
 
@@ -69,7 +80,7 @@ class _WeekScheduleViewState extends State<WeekScheduleView> {
         initialDate: _selectedDay,
         initialCustomer: _customers[0],
         customers: _customers,
-        onSave: _addSchedule,
+        onSave: _addMultipleSchedules,
       ),
     );
   }
@@ -83,9 +94,9 @@ class _WeekScheduleViewState extends State<WeekScheduleView> {
         initialCustomer: customer,
         initialTitle: currentTitle,
         customers: _customers,
-        onSave: (newDate, newCustomer, newTitle) {
+        onSave: (newDates, newCustomer, newTitle) {
           _removeSchedule(date, customer);
-          _addSchedule(newDate, newCustomer, newTitle);
+          _addMultipleSchedules(newDates, newCustomer, newTitle);
         },
         onDelete: () => _removeSchedule(date, customer),
       ),
@@ -98,9 +109,9 @@ class _WeekScheduleViewState extends State<WeekScheduleView> {
     });
   }
 
-  void _onScheduleTap(DateTime date, String customer, String? schedule) {
+  void _onScheduleTap(DateTime date, String customer, ScheduleItem? schedule) {
     if (schedule != null) {
-      _showEditScheduleDialog(date, customer, schedule);
+      _showEditScheduleDialog(date, customer, schedule.title);
     } else {
       _showAddScheduleDialog();
     }

@@ -7,7 +7,7 @@ class ScheduleDialog extends StatefulWidget {
   final String initialCustomer;
   final String? initialTitle;
   final List<String> customers;
-  final Function(DateTime date, String customer, String title) onSave;
+  final Function(List<DateTime> dates, String customer, String title) onSave;
   final VoidCallback? onDelete;
 
   const ScheduleDialog({
@@ -28,14 +28,14 @@ class ScheduleDialog extends StatefulWidget {
 class _ScheduleDialogState extends State<ScheduleDialog> {
   late TextEditingController _titleController;
   late String _selectedCustomer;
-  late DateTime _selectedDate;
+  List<DateTime> _selectedDates = [];
 
   @override
   void initState() {
     super.initState();
     _titleController = TextEditingController(text: widget.initialTitle ?? '');
     _selectedCustomer = widget.initialCustomer;
-    _selectedDate = widget.initialDate;
+    _selectedDates = [widget.initialDate];
   }
 
   @override
@@ -47,7 +47,7 @@ class _ScheduleDialogState extends State<ScheduleDialog> {
   Future<void> _selectDate() async {
     final DateTime? picked = await showRoundedDatePicker(
       context: context,
-      initialDate: _selectedDate,
+      initialDate: _selectedDates.isNotEmpty ? _selectedDates.first : DateTime.now(),
       firstDate: DateTime(2020),
       lastDate: DateTime(2030),
       locale: const Locale('ja', 'JP'),
@@ -74,7 +74,12 @@ class _ScheduleDialogState extends State<ScheduleDialog> {
     
     if (picked != null) {
       setState(() {
-        _selectedDate = picked;
+        if (_selectedDates.contains(picked)) {
+          _selectedDates.remove(picked);
+        } else {
+          _selectedDates.add(picked);
+        }
+        _selectedDates.sort();
       });
     }
   }
@@ -88,7 +93,37 @@ class _ScheduleDialogState extends State<ScheduleDialog> {
         children: [
           ListTile(
             title: const Text('日付'),
-            subtitle: Text('${_selectedDate.year}年${_selectedDate.month}月${_selectedDate.day}日'),
+            subtitle: _selectedDates.isEmpty 
+                ? const Text('日付を選択してください')
+                : Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text('選択された日付: ${_selectedDates.length}日'),
+                      const SizedBox(height: 4),
+                      Wrap(
+                        spacing: 4,
+                        runSpacing: 4,
+                        children: _selectedDates.map((date) {
+                          final isFirst = _selectedDates.first == date;
+                          return Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: isFirst ? Colors.blue : Colors.grey,
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Text(
+                              '${date.month}/${date.day}',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 12,
+                              ),
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                    ],
+                  ),
             trailing: const Icon(Icons.calendar_today),
             onTap: _selectDate,
           ),
@@ -139,8 +174,8 @@ class _ScheduleDialogState extends State<ScheduleDialog> {
           ),
         TextButton(
           onPressed: () {
-            if (_titleController.text.isNotEmpty) {
-              widget.onSave(_selectedDate, _selectedCustomer, _titleController.text);
+            if (_titleController.text.isNotEmpty && _selectedDates.isNotEmpty) {
+              widget.onSave(_selectedDates, _selectedCustomer, _titleController.text);
               Navigator.pop(context);
             }
           },
