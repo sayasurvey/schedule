@@ -335,16 +335,19 @@ class _WeekScheduleViewState extends State<WeekScheduleView> {
                       ),
                       child: schedule != null
                           ? Container(
-                              margin: const EdgeInsets.all(4),
-                              padding: const EdgeInsets.all(4),
+                              height: double.infinity,
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                               decoration: BoxDecoration(
                                 color: Colors.blue.withOpacity(0.1),
                                 borderRadius: BorderRadius.circular(4),
                               ),
-                              child: Text(
-                                schedule,
-                                style: const TextStyle(fontSize: 12),
-                                overflow: TextOverflow.ellipsis,
+                              child: Center(
+                                child: Text(
+                                  schedule,
+                                  style: const TextStyle(fontSize: 12),
+                                  overflow: TextOverflow.ellipsis,
+                                  textAlign: TextAlign.center,
+                                ),
                               ),
                             )
                           : null,
