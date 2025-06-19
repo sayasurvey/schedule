@@ -35,7 +35,7 @@ class _ScheduleDialogState extends State<ScheduleDialog> {
     super.initState();
     _titleController = TextEditingController(text: widget.initialTitle ?? '');
     _selectedCustomer = widget.initialCustomer;
-    _selectedDates = [widget.initialDate];
+    _selectedDates = widget.initialTitle != null ? [widget.initialDate] : [];
   }
 
   @override
