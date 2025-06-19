@@ -129,6 +129,7 @@ class _WeekScheduleViewState extends State<WeekScheduleView> {
                         firstDate: DateTime(2020),
                         lastDate: DateTime(2030),
                         locale: const Locale('ja', 'JP'),
+                        initialEntryMode: DatePickerEntryMode.calendarOnly,
                       );
                       if (picked != null) {
                         setDialogState(() {
