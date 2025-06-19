@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:flutter_rounded_date_picker/flutter_rounded_date_picker.dart';
 
 class WeekScheduleView extends StatefulWidget {
   const WeekScheduleView({super.key});
@@ -123,13 +124,31 @@ class _WeekScheduleViewState extends State<WeekScheduleView> {
                     subtitle: Text('${selectedDate.year}年${selectedDate.month}月${selectedDate.day}日'),
                     trailing: const Icon(Icons.calendar_today),
                     onTap: () async {
-                      final DateTime? picked = await showDatePicker(
+                      final DateTime? picked = await showRoundedDatePicker(
                         context: context,
                         initialDate: selectedDate,
                         firstDate: DateTime(2020),
                         lastDate: DateTime(2030),
                         locale: const Locale('ja', 'JP'),
-                        initialEntryMode: DatePickerEntryMode.calendarOnly,
+                        theme: ThemeData(
+                          primarySwatch: Colors.blue,
+                          colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
+                        ),
+                        styleDatePicker: MaterialRoundedDatePickerStyle(
+                          textStyleYearButton: const TextStyle(
+                            fontSize: 52,
+                            color: Colors.white,
+                          ),
+                          textStyleDayButton: const TextStyle(
+                            fontSize: 16,
+                            color: Colors.white,
+                          ),
+                          textStyleCurrentDayOnCalendar: const TextStyle(
+                            fontSize: 16,
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                       );
                       if (picked != null) {
                         setDialogState(() {
@@ -362,12 +381,31 @@ class _WeekScheduleViewState extends State<WeekScheduleView> {
                     subtitle: Text('${selectedDate.year}年${selectedDate.month}月${selectedDate.day}日'),
                     trailing: const Icon(Icons.calendar_today),
                     onTap: () async {
-                      final DateTime? picked = await showDatePicker(
+                      final DateTime? picked = await showRoundedDatePicker(
                         context: context,
                         initialDate: selectedDate,
                         firstDate: DateTime(2020),
                         lastDate: DateTime(2030),
                         locale: const Locale('ja', 'JP'),
+                        theme: ThemeData(
+                          primarySwatch: Colors.blue,
+                          colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
+                        ),
+                        styleDatePicker: MaterialRoundedDatePickerStyle(
+                          textStyleYearButton: const TextStyle(
+                            fontSize: 52,
+                            color: Colors.white,
+                          ),
+                          textStyleDayButton: const TextStyle(
+                            fontSize: 16,
+                            color: Colors.white,
+                          ),
+                          textStyleCurrentDayOnCalendar: const TextStyle(
+                            fontSize: 16,
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                       );
                       if (picked != null) {
                         setDialogState(() {
