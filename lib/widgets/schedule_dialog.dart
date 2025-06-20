@@ -66,7 +66,7 @@ class _ScheduleDialogState extends State<ScheduleDialog> {
         ),
         textStyleCurrentDayOnCalendar: const TextStyle(
           fontSize: 16,
-          color: Colors.white,
+          color: Colors.green,
           fontWeight: FontWeight.bold,
         ),
       ),
