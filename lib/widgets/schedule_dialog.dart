@@ -69,6 +69,11 @@ class _ScheduleDialogState extends State<ScheduleDialog> {
           color: Colors.green,
           fontWeight: FontWeight.bold,
         ),
+        textStyleDayOnCalendarSelected: const TextStyle(
+          fontSize: 16,
+          color: Colors.white,
+          fontWeight: FontWeight.bold,
+        ),
       ),
     );
     
