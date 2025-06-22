@@ -32,7 +32,7 @@ class _WeekScheduleViewState extends State<WeekScheduleView> {
     'アットコスメ'
   ];
 
-  final Map<DateTime, Map<String, ScheduleItem>> _schedules = {};
+  final Map<DateTime, Map<String, List<ScheduleItem>>> _schedules = {};
   final List<String> _weekdays = ['月', '火', '水', '木', '金', '土', '日'];
 
   @override
@@ -60,15 +60,21 @@ class _WeekScheduleViewState extends State<WeekScheduleView> {
         if (!_schedules.containsKey(date)) {
           _schedules[date] = {};
         }
+        if (!_schedules[date]!.containsKey(customer)) {
+          _schedules[date]![customer] = [];
+        }
         final isFirst = i == 0;
-        _schedules[date]![customer] = ScheduleItem(title: title, isFirst: isFirst);
+        _schedules[date]![customer]!.add(ScheduleItem(title: title, isFirst: isFirst));
       }
     });
   }
 
-  void _removeSchedule(DateTime date, String customer) {
+  void _removeSchedule(DateTime date, String customer, int index) {
     setState(() {
-      _schedules[date]?.remove(customer);
+      _schedules[date]?[customer]?.removeAt(index);
+      if (_schedules[date]?[customer]?.isEmpty ?? false) {
+        _schedules[date]?.remove(customer);
+      }
     });
   }
 
@@ -98,7 +104,7 @@ class _WeekScheduleViewState extends State<WeekScheduleView> {
     );
   }
 
-  void _showEditScheduleDialog(DateTime date, String customer, String currentTitle) {
+  void _showEditScheduleDialog(DateTime date, String customer, String currentTitle, int index) {
     showDialog(
       context: context,
       builder: (context) => ScheduleDialog(
@@ -108,10 +114,10 @@ class _WeekScheduleViewState extends State<WeekScheduleView> {
         initialTitle: currentTitle,
         customers: _customers,
         onSave: (newDates, newCustomer, newTitle) {
-          _removeSchedule(date, customer);
+          _removeSchedule(date, customer, index);
           _addMultipleSchedules(newDates, newCustomer, newTitle);
         },
-        onDelete: () => _removeSchedule(date, customer),
+        onDelete: () => _removeSchedule(date, customer, index),
       ),
     );
   }
@@ -122,12 +128,61 @@ class _WeekScheduleViewState extends State<WeekScheduleView> {
     });
   }
 
-  void _onScheduleTap(DateTime date, String customer, ScheduleItem? schedule) {
-    if (schedule != null) {
-      _showEditScheduleDialog(date, customer, schedule.title);
+  void _onScheduleTap(DateTime date, String customer, List<ScheduleItem>? schedules) {
+    if (schedules != null && schedules.isNotEmpty) {
+      // If there's only one schedule, edit it directly
+      if (schedules.length == 1) {
+        _showEditScheduleDialog(date, customer, schedules[0].title, 0);
+      } else {
+        // Show selection dialog for multiple schedules
+        _showScheduleSelectionDialog(date, customer, schedules);
+      }
     } else {
       _showAddScheduleDialogForCell(date, customer);
     }
+  }
+
+  void _showScheduleSelectionDialog(DateTime date, String customer, List<ScheduleItem> schedules) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('スケジュールを選択'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ...schedules.asMap().entries.map((entry) {
+              final index = entry.key;
+              final schedule = entry.value;
+              return ListTile(
+                title: Text(schedule.title),
+                trailing: IconButton(
+                  icon: const Icon(Icons.edit),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    _showEditScheduleDialog(date, customer, schedule.title, index);
+                  },
+                ),
+              );
+            }),
+            const Divider(),
+            ListTile(
+              leading: const Icon(Icons.add),
+              title: const Text('新しいスケジュールを追加'),
+              onTap: () {
+                Navigator.of(context).pop();
+                _showAddScheduleDialogForCell(date, customer);
+              },
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('キャンセル'),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
