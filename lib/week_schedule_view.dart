@@ -85,6 +85,19 @@ class _WeekScheduleViewState extends State<WeekScheduleView> {
     );
   }
 
+  void _showAddScheduleDialogForCell(DateTime date, String customer) {
+    showDialog(
+      context: context,
+      builder: (context) => ScheduleDialog(
+        title: 'スケジュールを追加',
+        initialDate: date,
+        initialCustomer: customer,
+        customers: _customers,
+        onSave: _addMultipleSchedules,
+      ),
+    );
+  }
+
   void _showEditScheduleDialog(DateTime date, String customer, String currentTitle) {
     showDialog(
       context: context,
@@ -113,7 +126,7 @@ class _WeekScheduleViewState extends State<WeekScheduleView> {
     if (schedule != null) {
       _showEditScheduleDialog(date, customer, schedule.title);
     } else {
-      _showAddScheduleDialog();
+      _showAddScheduleDialogForCell(date, customer);
     }
   }
 
