@@ -128,62 +128,15 @@ class _WeekScheduleViewState extends State<WeekScheduleView> {
     });
   }
 
-  void _onScheduleTap(DateTime date, String customer, List<ScheduleItem>? schedules) {
-    if (schedules != null && schedules.isNotEmpty) {
-      // If there's only one schedule, edit it directly
-      if (schedules.length == 1) {
-        _showEditScheduleDialog(date, customer, schedules[0].title, 0);
-      } else {
-        // Show selection dialog for multiple schedules
-        _showScheduleSelectionDialog(date, customer, schedules);
-      }
+  void _onScheduleTap(DateTime date, String customer, int? scheduleIndex) {
+    final schedules = _schedules[date]?[customer];
+    if (schedules != null && schedules.isNotEmpty && scheduleIndex != null) {
+      _showEditScheduleDialog(date, customer, schedules[scheduleIndex].title, scheduleIndex);
     } else {
       _showAddScheduleDialogForCell(date, customer);
     }
   }
 
-  void _showScheduleSelectionDialog(DateTime date, String customer, List<ScheduleItem> schedules) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('スケジュールを選択'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ...schedules.asMap().entries.map((entry) {
-              final index = entry.key;
-              final schedule = entry.value;
-              return ListTile(
-                title: Text(schedule.title),
-                trailing: IconButton(
-                  icon: const Icon(Icons.edit),
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                    _showEditScheduleDialog(date, customer, schedule.title, index);
-                  },
-                ),
-              );
-            }),
-            const Divider(),
-            ListTile(
-              leading: const Icon(Icons.add),
-              title: const Text('新しいスケジュールを追加'),
-              onTap: () {
-                Navigator.of(context).pop();
-                _showAddScheduleDialogForCell(date, customer);
-              },
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('キャンセル'),
-          ),
-        ],
-      ),
-    );
-  }
 
   @override
   Widget build(BuildContext context) {

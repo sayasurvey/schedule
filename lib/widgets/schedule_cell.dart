@@ -3,31 +3,31 @@ import '../week_schedule_view.dart';
 
 class ScheduleCell extends StatelessWidget {
   final List<ScheduleItem>? schedules;
-  final VoidCallback onTap;
+  final Function(int?) onScheduleTap;
 
   const ScheduleCell({
     super.key,
     this.schedules,
-    required this.onTap,
+    required this.onScheduleTap,
   });
 
   @override
   Widget build(BuildContext context) {
     return Expanded(
-      child: GestureDetector(
-        onTap: onTap,
-        child: Container(
-          decoration: BoxDecoration(
-            border: Border(
-              right: BorderSide(color: Colors.grey.shade300),
-            ),
+      child: Container(
+        decoration: BoxDecoration(
+          border: Border(
+            right: BorderSide(color: Colors.grey.shade300),
           ),
-          child: schedules != null && schedules!.isNotEmpty
-              ? Column(
-                  children: schedules!.asMap().entries.map((entry) {
-                    final index = entry.key;
-                    final schedule = entry.value;
-                    return Expanded(
+        ),
+        child: schedules != null && schedules!.isNotEmpty
+            ? Column(
+                children: schedules!.asMap().entries.map((entry) {
+                  final index = entry.key;
+                  final schedule = entry.value;
+                  return Expanded(
+                    child: GestureDetector(
+                      onTap: () => onScheduleTap(index),
                       child: Container(
                         width: double.infinity,
                         padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
@@ -54,11 +54,17 @@ class ScheduleCell extends StatelessWidget {
                           ),
                         ),
                       ),
-                    );
-                  }).toList(),
-                )
-              : null,
-        ),
+                    ),
+                  );
+                }).toList(),
+              )
+            : GestureDetector(
+                onTap: () => onScheduleTap(null),
+                child: const SizedBox(
+                  width: double.infinity,
+                  height: double.infinity,
+                ),
+              ),
       ),
     );
   }

@@ -9,7 +9,7 @@ class ScheduleGrid extends StatelessWidget {
   final DateTime selectedDay;
   final List<String> weekdays;
   final Function(DateTime) onDateTap;
-  final Function(DateTime, String, List<ScheduleItem>?) onScheduleTap;
+  final Function(DateTime, String, int?) onScheduleTap;
 
   const ScheduleGrid({
     super.key,
@@ -44,7 +44,7 @@ class ScheduleGrid extends StatelessWidget {
                 final scheduleList = schedules[date]?[customer];
                 return ScheduleCell(
                   schedules: scheduleList,
-                  onTap: () => onScheduleTap(date, customer, scheduleList),
+                  onScheduleTap: (index) => onScheduleTap(date, customer, index),
                 );
               }),
             ],
