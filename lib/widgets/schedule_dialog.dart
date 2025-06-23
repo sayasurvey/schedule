@@ -35,7 +35,7 @@ class _ScheduleDialogState extends State<ScheduleDialog> {
     super.initState();
     _titleController = TextEditingController(text: widget.initialTitle ?? '');
     _selectedCustomer = widget.initialCustomer;
-    _selectedDates = [widget.initialDate];
+    _selectedDates = [];
   }
 
   @override
@@ -47,7 +47,7 @@ class _ScheduleDialogState extends State<ScheduleDialog> {
   Future<void> _selectDate() async {
     final DateTime? picked = await showRoundedDatePicker(
       context: context,
-      initialDate: _selectedDates.isNotEmpty ? _selectedDates.first : DateTime.now(),
+      initialDate: _selectedDates.isNotEmpty ? _selectedDates.first : widget.initialDate,
       firstDate: DateTime(2020),
       lastDate: DateTime(2030),
       locale: const Locale('ja', 'JP'),
