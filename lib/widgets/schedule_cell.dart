@@ -62,8 +62,8 @@ class ScheduleCell extends StatelessWidget {
                       }).toList(),
                     ),
                   ),
-                  if (schedules!.length > 1)
-                    Container(
+                  if (schedules!.isNotEmpty)
+                    SizedBox(
                       width: 20,
                       child: GestureDetector(
                         onTap: () => onScheduleTap(null),
