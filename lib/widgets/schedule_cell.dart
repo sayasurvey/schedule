@@ -87,9 +87,10 @@ class ScheduleCell extends StatelessWidget {
               )
             : GestureDetector(
                 onTap: () => onScheduleTap(null),
-                child: const SizedBox(
+                child: Container(
                   width: double.infinity,
                   height: double.infinity,
+                  color: Colors.transparent,
                 ),
               ),
       ),
