@@ -5,11 +5,11 @@ import '../week_schedule_view.dart';
 class ScheduleGrid extends StatelessWidget {
   final List<DateTime> days;
   final List<String> customers;
-  final Map<DateTime, Map<String, ScheduleItem>> schedules;
+  final Map<DateTime, Map<String, List<ScheduleItem>>> schedules;
   final DateTime selectedDay;
   final List<String> weekdays;
   final Function(DateTime) onDateTap;
-  final Function(DateTime, String, ScheduleItem?) onScheduleTap;
+  final Function(DateTime, String, int?) onScheduleTap;
 
   const ScheduleGrid({
     super.key,
@@ -41,10 +41,10 @@ class ScheduleGrid extends StatelessWidget {
             children: [
               _buildDateCell(date, isSelected),
               ...customers.map((customer) {
-                final schedule = schedules[date]?[customer];
+                final scheduleList = schedules[date]?[customer];
                 return ScheduleCell(
-                  schedule: schedule,
-                  onTap: () => onScheduleTap(date, customer, schedule),
+                  schedules: scheduleList,
+                  onScheduleTap: (index) => onScheduleTap(date, customer, index),
                 );
               }),
             ],

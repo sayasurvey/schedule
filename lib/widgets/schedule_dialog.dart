@@ -47,7 +47,7 @@ class _ScheduleDialogState extends State<ScheduleDialog> {
   Future<void> _selectDate() async {
     final DateTime? picked = await showRoundedDatePicker(
       context: context,
-      initialDate: _selectedDates.isNotEmpty ? _selectedDates.first : DateTime.now(),
+      initialDate: _selectedDates.isNotEmpty ? _selectedDates.first : widget.initialDate,
       firstDate: DateTime(2020),
       lastDate: DateTime(2030),
       locale: const Locale('ja', 'JP'),
@@ -117,12 +117,30 @@ class _ScheduleDialogState extends State<ScheduleDialog> {
                               color: isFirst ? Colors.blue : Colors.grey,
                               borderRadius: BorderRadius.circular(12),
                             ),
-                            child: Text(
-                              '${date.month}/${date.day}',
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 12,
-                              ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  '${date.month}/${date.day}',
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                                const SizedBox(width: 4),
+                                GestureDetector(
+                                  onTap: () {
+                                    setState(() {
+                                      _selectedDates.remove(date);
+                                    });
+                                  },
+                                  child: const Icon(
+                                    Icons.close,
+                                    color: Colors.white,
+                                    size: 14,
+                                  ),
+                                ),
+                              ],
                             ),
                           );
                         }).toList(),

@@ -32,7 +32,7 @@ class _WeekScheduleViewState extends State<WeekScheduleView> {
     'アットコスメ'
   ];
 
-  final Map<DateTime, Map<String, ScheduleItem>> _schedules = {};
+  final Map<DateTime, Map<String, List<ScheduleItem>>> _schedules = {};
   final List<String> _weekdays = ['月', '火', '水', '木', '金', '土', '日'];
 
   @override
@@ -60,15 +60,21 @@ class _WeekScheduleViewState extends State<WeekScheduleView> {
         if (!_schedules.containsKey(date)) {
           _schedules[date] = {};
         }
+        if (!_schedules[date]!.containsKey(customer)) {
+          _schedules[date]![customer] = [];
+        }
         final isFirst = i == 0;
-        _schedules[date]![customer] = ScheduleItem(title: title, isFirst: isFirst);
+        _schedules[date]![customer]!.add(ScheduleItem(title: title, isFirst: isFirst));
       }
     });
   }
 
-  void _removeSchedule(DateTime date, String customer) {
+  void _removeSchedule(DateTime date, String customer, int index) {
     setState(() {
-      _schedules[date]?.remove(customer);
+      _schedules[date]?[customer]?.removeAt(index);
+      if (_schedules[date]?[customer]?.isEmpty ?? false) {
+        _schedules[date]?.remove(customer);
+      }
     });
   }
 
@@ -98,7 +104,7 @@ class _WeekScheduleViewState extends State<WeekScheduleView> {
     );
   }
 
-  void _showEditScheduleDialog(DateTime date, String customer, String currentTitle) {
+  void _showEditScheduleDialog(DateTime date, String customer, String currentTitle, int index) {
     showDialog(
       context: context,
       builder: (context) => ScheduleDialog(
@@ -108,10 +114,10 @@ class _WeekScheduleViewState extends State<WeekScheduleView> {
         initialTitle: currentTitle,
         customers: _customers,
         onSave: (newDates, newCustomer, newTitle) {
-          _removeSchedule(date, customer);
+          _removeSchedule(date, customer, index);
           _addMultipleSchedules(newDates, newCustomer, newTitle);
         },
-        onDelete: () => _removeSchedule(date, customer),
+        onDelete: () => _removeSchedule(date, customer, index),
       ),
     );
   }
@@ -122,13 +128,15 @@ class _WeekScheduleViewState extends State<WeekScheduleView> {
     });
   }
 
-  void _onScheduleTap(DateTime date, String customer, ScheduleItem? schedule) {
-    if (schedule != null) {
-      _showEditScheduleDialog(date, customer, schedule.title);
+  void _onScheduleTap(DateTime date, String customer, int? scheduleIndex) {
+    final schedules = _schedules[date]?[customer];
+    if (schedules != null && schedules.isNotEmpty && scheduleIndex != null) {
+      _showEditScheduleDialog(date, customer, schedules[scheduleIndex].title, scheduleIndex);
     } else {
       _showAddScheduleDialogForCell(date, customer);
     }
   }
+
 
   @override
   Widget build(BuildContext context) {
