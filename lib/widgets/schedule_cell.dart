@@ -62,7 +62,7 @@ class ScheduleCell extends StatelessWidget {
                       }).toList(),
                     ),
                   ),
-                  if (schedules!.isNotEmpty)
+                  if (schedules!.isNotEmpty && schedules!.length < 3)
                     SizedBox(
                       width: 20,
                       child: GestureDetector(
